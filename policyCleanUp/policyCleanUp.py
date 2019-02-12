@@ -55,6 +55,9 @@ GLOBAL_DOMAIN_NAME = 'Global'
 # Rule install-on all targets constant UID
 INSTALL_ON_ALL_TARGETS = "6c488338-8eec-4103-ad21-cd461ac2c476"
 
+REASON_OF_ALL_TARGETS_INVALID = "Check that Access policy is installed on all targets and " \
+                             "policy wasn't modified after installation date and hitcount is active on targets"
+
 # Parse user arguments
 def parse_arguments():
 
@@ -317,8 +320,7 @@ def valid_packages_targets(packages, client):
 
     # If all domain targets invalid - exit
     if not valid_targets['packages-targets']:
-        print_msg("All domain targets are invalid.")
-        exit(0)
+        print_msg("All domain’s targets are invalid. " + REASON_OF_ALL_TARGETS_INVALID)
 
     # Foreach policy keep only the valid targets
     for package in packages:
@@ -426,7 +428,7 @@ def validate_package(package, valid_targets):
     package_name = package.get('name')
 
     if package_name not in valid_targets['packages-targets']:
-        package['skipped-reason'] = "All package targets are invalid"
+        package['skipped-reason'] = "All package targets are invalid. " + REASON_OF_ALL_TARGETS_INVALID
         return False
 
     return True
@@ -1002,12 +1004,11 @@ def main():
             valid_targets = valid_packages_targets(plan['packages'], client)
 
             for package in plan.get('packages'):
-
-                print_msg("Package {}".format(package['name']))
-
                 # Skip invalid packages (all installation targets are invalid)
                 if validate_package(package, valid_targets) is False:
                     continue
+
+                print_msg("Package {}".format(package['name']))
 
                 # Loop over policy layers
                 for layer in package.get('access-layers'):
@@ -1066,12 +1067,14 @@ def main():
 
             summary = {};
             plan = build_output_structure(plan, summary, user_args.operation)
-            print_summary(summary)
+
+            if valid_targets['packages-targets']:
+                print_summary(summary)
 
             # Write plan to log file in JSON format
             write_plan_json(plan, user_args.output_file)
 
-            print_msg('Plan process has finished successfully.\n')
+            print_msg('Plan process has finished.\n')
             print_msg('The output file in: {}'.format(os.path.abspath(user_args.output_file)))
 
         # Get plan-file path as argument
