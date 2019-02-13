@@ -33,8 +33,8 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 # A package for reading passwords without displaying them on the console.
 import getpass
 
-# lib is a library that handles the communication with the Check Point management server.
-from cp_mgmt_api_python_sdk.lib.mgmt_api import APIClient, APIClientArgs
+# cpapi is a library that handles the communication with the Check Point management server.
+from cpapi import APIClient, APIClientArgs
 
 # Defaults for global disable & delete thresholds
 DEFAULT_DISABLE_THRESHOLD = 180

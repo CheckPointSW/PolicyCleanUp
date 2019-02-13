@@ -12,11 +12,12 @@ You can adjust the code according to your organization’s policy / needs.
 ## Instructions
 Clone the repository with this command:
 ```git
-git clone --recursive https://github.com/CheckPointSW/PolicyCleanUp
+git clone https://github.com/CheckPointSW/PolicyCleanUp
 ``` 
-or by clicking the _‘Download ZIP’_ button. In this case, the "cp_mgmt_api_python_sdk" folder is created empty and you 
-must manually download and copy the [Check Point API Python SDK](https://github.com/CheckPointSW/cp_mgmt_api_python_sdk) 
-content into this folder.
+or by clicking the _‘Download ZIP’_ button. 
+
+Download and install the [Check Point API Python SDK](https://github.com/CheckPointSW/cp_mgmt_api_python_sdk) 
+repository, follow the instructions in the SDK repository.
 
 ## Main Options
 *__More options and details can be found with the '-h' option by running:__ python policyCleanUp.py –h*
