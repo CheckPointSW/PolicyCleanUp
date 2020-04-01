@@ -320,7 +320,7 @@ def valid_packages_targets(packages, client):
 
     # If all domain targets invalid - exit
     if not valid_targets['packages-targets']:
-        print_msg("All domain’s targets are invalid. " + REASON_OF_ALL_TARGETS_INVALID)
+        print_msg("All domain's targets are invalid. " + REASON_OF_ALL_TARGETS_INVALID)
 
     # Foreach policy keep only the valid targets
     for package in packages:
