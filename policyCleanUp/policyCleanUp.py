@@ -992,7 +992,7 @@ def is_failure(error_msg, response):
 # Check if running on MDS and didn't supply domain
 def check_validation_for_mds(client, domain):
     api_res = client.api_call("show-mdss")
-    if int(api_res.data.get('total')) != 0:
+    if api_res.success and int(api_res.data.get('total')) != 0:
         if domain is None:
             print_msg(" Error: You must provide a domain in a Multi-Domain-Management environment.")
             exit(1)
