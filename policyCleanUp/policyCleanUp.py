@@ -99,6 +99,9 @@ def parse_arguments():
     # Optional password argument
     parser.add_argument('--password', '-p', help='\nManagement administrator password.', metavar="")
 
+    # Optional api key argument
+    parser.add_argument('--api-key', help='\nManagement administrator API key.', metavar="")
+
     # Optional login as root argument
     parser.add_argument('--root', '-r', choices=['true', 'false'],
                         help='\b{%(choices)s}\nLogin as root. When running on the management server, use this flag with value set to \'true\' to login as Super User administrator.',
@@ -139,22 +142,46 @@ def parse_arguments():
 def customize_arguments(parser, args):
     # The user has not entered username
     if args.root is None:
-        if args.username is None:
-            if sys.version_info >= (3, 0):
-                args.username = input("Username: ")
-            else:
-                args.username = raw_input("Username: ")
+        auth_method = ""
+        if args.username or args.password:
+            auth_method = "1"
+        elif args.api_key:
+            auth_method = "2"
 
-        # The user has not entered password
-        if args.password is None:
-            if sys.stdin.isatty():
-                args.password = getpass.getpass("Password: ")
+        if args.username is None and args.password is None and args.api_key is None:
+            if sys.version_info >= (3, 0):
+                auth_method = input("Select authentication method: \n1. Username & Password \n2. API key\n")
             else:
-                print_msg("Attention! Your password will be shown on the screen!")
+                auth_method = raw_input("Select authentication method: \n1. Username & Password \n2. API key\n")
+
+        if auth_method != "1" and auth_method != "2":
+            print_msg("Invalid authentication method input (Expected 1 or 2)")
+            exit(1)
+
+        if auth_method == "1":
+            if args.username is None:
                 if sys.version_info >= (3, 0):
-                    args.password = input("Password: ")
+                    args.username = input("Username: ")
                 else:
-                    args.password = raw_input("Password: ")
+                    args.username = raw_input("Username: ")
+
+            # The user has not entered password
+            if args.password is None:
+                if sys.stdin.isatty():
+                    args.password = getpass.getpass("Password: ")
+                else:
+                    print("Attention! Your password will be shown on the screen!")
+                    if sys.version_info >= (3, 0):
+                        args.password = input("Password: ")
+                    else:
+                        args.password = raw_input("Password: ")
+        else:
+            if args.api_key is None:
+                print("Attention! Your API key will be shown on the screen!")
+                if sys.version_info >= (3, 0):
+                    args.api_key = input("API key: ")
+                else:
+                    args.api_key = raw_input("API key: ")
 
     # Plan-file should be provided in apply operations only
     if (args.import_plan_file is not None) and (is_apply_operation(args.operation) is False):
@@ -723,11 +750,16 @@ def login(user_args, client):
                                              payload=dict({"read-only": str(login_read_only)}, **session_details))
         else:
             print_msg(
-                " Error: Command contains ambigious parameters. Management server remote ip is unexpected when logging in as root.")
+                "Error: Command contains ambigious parameters. Management server remote ip is unexpected when logging "
+                "in as root.")
             exit(1)
     else:
-        login_res = client.login(user_args.username, user_args.password, domain=user_args.domain,
-                                 read_only=login_read_only, payload=session_details)
+        if user_args.api_key and len(user_args.api_key) > 0:
+            login_res = client.login_with_api_key(user_args.api_key, domain=user_args.domain,
+                                                  read_only=login_read_only, payload=session_details)
+        else:
+            login_res = client.login(user_args.username, user_args.password, domain=user_args.domain,
+                                     read_only=login_read_only, payload=session_details)
 
     exit_failure("Failed to login.", login_res)
 
@@ -792,7 +824,8 @@ def is_target_valid_group(target_uid, valid_targets, client, groups):
 
     response = client.api_call(command="show-group", payload={"uid": target_uid})
     if response.success is False:
-        print_msg("Failed to get group with UID {}. Error: {}".format(target_uid, response.error_message.encode('utf-8')))
+        print_msg(
+            "Failed to get group with UID {}. Error: {}".format(target_uid, response.error_message.encode('utf-8')))
         return False
 
     members = response.data.get("members")
