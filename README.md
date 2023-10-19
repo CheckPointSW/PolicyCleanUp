@@ -44,10 +44,11 @@ which rules were affected. If not supplied, the default file name is _‘policyC
 To use it in ‘apply’ operations, pass it as 'import plan file'.
 
 ## Examples
-*   Running the tool on a remote management server: 
+*   Running the tool on a remote management server using username & password: 
 <br>```python policyCleanUp.py  -m 172.23.78.160 -u James -p MySecretPassword!```
-<br>The tool runs on a remote management server with IP address 172.23.78.160.and the operation is ‘plan’ (default).
-
+<br>The tool runs on a remote management server with IP address 172.23.78.160 and the operation is ‘plan’ (default).
+*   Running the tool on a remote management server using API key: 
+<br>```python policyCleanUp.py  -m 172.23.78.160 --api-key JpPA+eJ5gekQBY8DF27+ZQ==```
 *   Running the tool on a Multi-Domain Server for a specific domain and a specific policy package: 
 <br>```python policyCleanUp.py  -d 172.23.78.152 –k Standard -u James -p MySecretPassword!```
 *   Running the tool on a Security Management Server with operation plan: 
